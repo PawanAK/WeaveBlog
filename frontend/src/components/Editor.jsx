@@ -10,7 +10,7 @@ const Editor = () => {
   const [isPosting, setIsPosting] = useState(false);
 
   const { connected } = useConnection();
-  const processId = "DMqjF8F9x-XR9ePJBr429ybVOxbyPSjnI_P5yEBNCzA";
+  const processId = "GL0nRHgMslEKpnHqp1k7BbfrDbAPV5aptkD7XDZKIfU";
 
   const createPost = async (e) => {
     e.preventDefault();
@@ -73,8 +73,7 @@ const Editor = () => {
         className="px-6 py-3 bg-black text-white rounded-full text-lg"
         type="submit"
         disabled={isPosting || (title === "" && draftContent === "")}
-        onClick={(e) => createPost(e)}
-      >
+        onClick={(e) => createPost(e)}>
         Create Post
       </button>
     </form>
