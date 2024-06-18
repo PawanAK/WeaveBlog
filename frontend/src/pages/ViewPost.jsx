@@ -61,7 +61,7 @@ const ViewPost = () => {
     const res = await message({
       process: processId,
       tags: [{ name: "Action", value: "Comment" }, { name: "PID", value: postId }],
-      data: comment,
+      data: comment, // Ensure comment data is sent correctly
       signer: createDataItemSigner(window.arweaveWallet),
     });
     await result({ process: processId, message: res });
