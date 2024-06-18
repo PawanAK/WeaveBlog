@@ -1,11 +1,6 @@
 import { useActiveAddress, useConnection } from "@arweave-wallet-kit/react";
 import Header from "../components/Header";
-import {
-    createDataItemSigner,
-    dryrun,
-    message,
-    result,
-} from "@permaweb/aoconnect";
+import { createDataItemSigner, dryrun, message, result } from "@permaweb/aoconnect";
 import { useEffect, useState } from "react";
 import Editor from "../components/Editor";
 
@@ -36,8 +31,10 @@ const Create = () => {
                 return parsedData;
             });
             console.log("Filtered Author result", filteredResult);
-            setAuthorList(filteredResult[0]);
-            setIsRegistered(filteredResult[0].some((author) => author.PID === activeAddress));
+            if (filteredResult[0]) {
+                setAuthorList(filteredResult[0]);
+                setIsRegistered(filteredResult[0].some((author) => author.PID === activeAddress));
+            }
         } catch (error) {
             console.log(error);
         }
@@ -76,7 +73,7 @@ const Create = () => {
         );
 
         setIsFetching(false);
-    }, [connected]);
+    }, [connected, isRegistered]); // Add isRegistered to the dependency array
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 pt-16">

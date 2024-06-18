@@ -2,7 +2,6 @@ local sqlite3 = require("lsqlite3")
 local dbAdmin = require("@rakis/DbAdmin")
 local db = sqlite3.open_memory()
 admin = dbAdmin.new(db)
-return OK
 
 AUTHORS = [[
   CREATE TABLE IF NOT EXISTS Authors (
@@ -46,16 +45,13 @@ function InitDb()
   return admin:tables()
 end
 
-return InitDb()
-
-
+InitDb()
 
 Handlers.add("BlinkBlog.Register",
   function (msg)
     return msg.Action == "Register"
   end,
   function (msg)
-    -- get author count to make sure author is not already registered
     local authorCount = #admin:exec(
       string.format([[select * from Authors where PID = "%s";]], msg.From)
     )
@@ -75,6 +71,34 @@ Handlers.add("BlinkBlog.Register",
     })
     print("Registered " .. Name)
   end 
+)
+
+Handlers.add("BlinkBlog.Get",
+function (msg) 
+  return msg.Action == "Get"
+end,
+function (msg) 
+  local post = admin:exec(string.format([[
+    SELECT p.ID, p.Title, a.Name as "Author", p.Body,
+    (select count(*) from Likes where PID = p.ID) as Likes,
+    (select count(*) from Comments where PID = p.ID) as Comments
+    FROM Posts p 
+    LEFT OUTER JOIN Authors a ON p.PID = a.PID 
+    WHERE p.ID = "%s";
+  ]], msg['Post-Id']))[1]
+
+  local comments = admin:exec(string.format([[
+    SELECT c.CID, c.UID, a.Name as "Author", c.Comment
+    FROM Comments c
+    LEFT OUTER JOIN Authors a ON c.UID = a.PID
+    WHERE c.PID = "%s";
+  ]], msg['Post-Id']))
+
+  post.Comments = comments
+
+  Send({Target = msg.From, Action = "Get-Response", Data = require('json').encode(post)})
+  print(post)
+end
 )
 
 Handlers.add("BlinkBlog.Post", 
@@ -100,44 +124,23 @@ Handlers.add("BlinkBlog.Post",
   end
 )
 
-
 Handlers.add("BlinkBlog.Posts", function (msg)
-    return msg.Action == "List"
-  end,
-  function (msg)
-    local posts = admin:exec([[
-      select p.ID, p.Title, a.Name as "Author", 
-      (select count(*) from Likes where PID = p.ID) as Likes,
-      (select count(*) from Comments where PID = p.ID) as Comments
-      from Posts p 
-      LEFT OUTER JOIN Authors a ON p.PID = a.PID;
-    ]])
-    print("Listing " .. #posts .. " posts")
-    Send({Target = msg.From, Action = "BlinkBlog.Posts", Data = require('json').encode(posts)})
-  end
-  )
-
-  
-  Handlers.add("BlinkBlog.Get",
-function (msg) 
-  return msg.Action == "Get"
+  return msg.Action == "List"
 end,
-function (msg) 
-  local post = admin:exec(string.format([[
-    SELECT p.ID, p.Title, a.Name as "Author", p.Body,
+function (msg)
+  local posts = admin:exec([[
+    select p.ID, p.Title, a.Name as "Author", 
     (select count(*) from Likes where PID = p.ID) as Likes,
-    (select * from Comments where PID = p.ID) as Comments
-    FROM Posts p 
-    LEFT OUTER JOIN Authors a ON p.PID = a.PID 
-    WHERE p.ID = "%s";
-  ]], msg['Post-Id']))
-  Send({Target = msg.From, Action = "Get-Response", Data = require('json').encode(post)})
-  print(post)
+    (select count(*) from Comments where PID = p.ID) as Comments
+    from Posts p 
+    LEFT OUTER JOIN Authors a ON p.PID = a.PID;
+  ]])
+  print("Listing " .. #posts .. " posts")
+  Send({Target = msg.From, Action = "BlinkBlog.Posts", Data = require('json').encode(posts)})
 end
 )
 
-
-Handlers.add("MicroBlog.Like",
+Handlers.add("BlinkBlog.Like",
   function (msg)
     return msg.Action == "Like"
   end,
@@ -147,7 +150,7 @@ Handlers.add("MicroBlog.Like",
     ]], msg.PID, msg.From)) > 0
     
     if likeExists then
-      Send({Target = msg.From, Action = "MicroBlog.Like", Data = "Already Liked"})
+      Send({Target = msg.From, Action = "BlinkBlog.Like", Data = "Already Liked"})
       print("Already Liked")
       return "Already Liked"
     end
@@ -155,13 +158,12 @@ Handlers.add("MicroBlog.Like",
     admin:exec(string.format([[
       INSERT INTO Likes (LID, PID, UID) VALUES ("%s", "%s", "%s");
     ]], msg.Id, msg.PID, msg.From))
-    Send({Target = msg.From, Action = "MicroBlog.Liked", Data = "Successfully Liked"})
+    Send({Target = msg.From, Action = "BlinkBlog.Liked", Data = "Successfully Liked"})
     print("Liked Microblog")
   end
 )
 
-
-Handlers.add("MicroBlog.Comment",
+Handlers.add("BlinkBlog.Comment",
   function (msg)
     return msg.Action == "Comment"
   end,
@@ -169,9 +171,7 @@ Handlers.add("MicroBlog.Comment",
     admin:exec(string.format([[
       INSERT INTO Comments (CID, PID, UID, Comment) VALUES ("%s", "%s", "%s", "%s");
     ]], msg.Id, msg.PID, msg.From, msg.Comment))
-    Send({Target = msg.From, Action = "MicroBlog.Commented", Data = "Successfully Commented"})
+    Send({Target = msg.From, Action = "BlinkBlog.Commented", Data = "Successfully Commented"})
     print("Commented on Microblog")
   end
 )
-
-

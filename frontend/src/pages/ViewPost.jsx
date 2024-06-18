@@ -2,21 +2,20 @@ import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import { useEffect, useState } from "react";
 import { useConnection } from "@arweave-wallet-kit/react";
-import { dryrun } from "@permaweb/aoconnect";
+import { dryrun, message, result } from "@permaweb/aoconnect";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.bubble.css";
-import { useActiveAddress } from "@arweave-wallet-kit/react";
-import { createDataItemSigner, message, result } from "@permaweb/aoconnect";
+import { createDataItemSigner } from "@permaweb/aoconnect";
 
 const ViewPost = () => {
   const { postId } = useParams();
   const { connected } = useConnection();
-
-  const processId = "GL0nRHgMslEKpnHqp1k7BbfrDbAPV5aptkD7XDZKIfU";
   const [isFetching, setIsFetching] = useState(false);
   const [postContent, setPostContent] = useState();
 
-  const syncAllPosts = async () => {
+  const processId = "GL0nRHgMslEKpnHqp1k7BbfrDbAPV5aptkD7XDZKIfU";
+
+  const syncPost = async () => {
     if (!connected) {
       return;
     }
@@ -34,7 +33,7 @@ const ViewPost = () => {
       console.log("Dry run result", result);
       const filteredResult = JSON.parse(result.Messages[0].Data);
       console.log("Filtered result", filteredResult);
-      setPostContent(filteredResult[0]);
+      setPostContent(filteredResult);
     } catch (error) {
       console.log(error);
     }
@@ -42,7 +41,7 @@ const ViewPost = () => {
 
   useEffect(() => {
     setIsFetching(true);
-    syncAllPosts();
+    syncPost();
     setIsFetching(false);
   }, [connected]);
 
@@ -54,6 +53,7 @@ const ViewPost = () => {
       signer: createDataItemSigner(window.arweaveWallet),
     });
     await result({ process: processId, message: res });
+    syncPost(); // Refresh post data to update likes count
   };
 
   const commentOnPost = async (comment) => {
@@ -64,6 +64,7 @@ const ViewPost = () => {
       signer: createDataItemSigner(window.arweaveWallet),
     });
     await result({ process: processId, message: res });
+    syncPost(); // Refresh post data to update comments
   };
 
   return (
@@ -90,7 +91,16 @@ const ViewPost = () => {
               className="w-full"
             />
             <button className="btn btn-primary mt-4" onClick={likePost}>Like</button>
+            <p className="text-gray-700 mt-2">Likes: {postContent.Likes}</p>
             <textarea className="textarea textarea-bordered mt-4" placeholder="Add a comment" onBlur={(e) => commentOnPost(e.target.value)}></textarea>
+            <div className="mt-4">
+              <h3 className="text-2xl font-bold mb-2">Comments</h3>
+              {postContent.Comments && postContent.Comments.map((comment, index) => (
+                <div key={index} className="border-b border-gray-300 py-2">
+                  <p className="text-gray-700"><strong>{comment.Author}:</strong> {comment.Comment}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </main>
