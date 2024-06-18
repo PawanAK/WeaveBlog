@@ -6,7 +6,7 @@ import { Outlet } from "react-router-dom";
 
 const View = () => {
   const { connected } = useConnection();
-  const processId = "GL0nRHgMslEKpnHqp1k7BbfrDbAPV5aptkD7XDZKIfU";
+  const processId = "CB7fhKGaFWmkjj-IX7tXjfTwYaPBs0Q-SkLYtTzei9A";
   const [isFetching, setIsFetching] = useState(false);
   const [postList, setPostList] = useState();
 

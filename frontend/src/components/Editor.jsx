@@ -10,7 +10,7 @@ const Editor = () => {
   const [isPosting, setIsPosting] = useState(false);
 
   const { connected } = useConnection();
-  const processId = "GL0nRHgMslEKpnHqp1k7BbfrDbAPV5aptkD7XDZKIfU";
+  const processId = "CB7fhKGaFWmkjj-IX7tXjfTwYaPBs0Q-SkLYtTzei9A";
 
   const createPost = async (e) => {
     e.preventDefault();

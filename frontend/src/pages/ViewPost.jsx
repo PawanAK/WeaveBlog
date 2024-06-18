@@ -12,8 +12,9 @@ const ViewPost = () => {
   const { connected } = useConnection();
   const [isFetching, setIsFetching] = useState(false);
   const [postContent, setPostContent] = useState();
+  const [comment, setComment] = useState("");
 
-  const processId = "GL0nRHgMslEKpnHqp1k7BbfrDbAPV5aptkD7XDZKIfU";
+  const processId = "CB7fhKGaFWmkjj-IX7tXjfTwYaPBs0Q-SkLYtTzei9A";
 
   const syncPost = async () => {
     if (!connected) {
@@ -56,7 +57,7 @@ const ViewPost = () => {
     syncPost(); // Refresh post data to update likes count
   };
 
-  const commentOnPost = async (comment) => {
+  const commentOnPost = async () => {
     const res = await message({
       process: processId,
       tags: [{ name: "Action", value: "Comment" }, { name: "PID", value: postId }],
@@ -64,6 +65,7 @@ const ViewPost = () => {
       signer: createDataItemSigner(window.arweaveWallet),
     });
     await result({ process: processId, message: res });
+    setComment(""); // Clear the comment input
     syncPost(); // Refresh post data to update comments
   };
 
@@ -92,7 +94,13 @@ const ViewPost = () => {
             />
             <button className="btn btn-primary mt-4" onClick={likePost}>Like</button>
             <p className="text-gray-700 mt-2">Likes: {postContent.Likes}</p>
-            <textarea className="textarea textarea-bordered mt-4" placeholder="Add a comment" onBlur={(e) => commentOnPost(e.target.value)}></textarea>
+            <textarea
+              className="textarea textarea-bordered mt-4"
+              placeholder="Add a comment"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            ></textarea>
+            <button className="btn btn-primary mt-2" onClick={commentOnPost}>Comment</button>
             <div className="mt-4">
               <h3 className="text-2xl font-bold mb-2">Comments</h3>
               {postContent.Comments && postContent.Comments.map((comment, index) => (

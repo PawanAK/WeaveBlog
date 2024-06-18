@@ -6,10 +6,11 @@ import Editor from "../components/Editor";
 
 const Create = () => {
     const { connected } = useConnection();
-    const processId = "GL0nRHgMslEKpnHqp1k7BbfrDbAPV5aptkD7XDZKIfU";
+    const processId = "CB7fhKGaFWmkjj-IX7tXjfTwYaPBs0Q-SkLYtTzei9A";
     const [isFetching, setIsFetching] = useState(false);
     const [authorList, setAuthorList] = useState([]);
     const [isRegistered, setIsRegistered] = useState(false);
+    const [name, setName] = useState("");
 
     const activeAddress = useActiveAddress();
 
@@ -43,7 +44,7 @@ const Create = () => {
     const registerAuthor = async () => {
         const res = await message({
             process: processId,
-            tags: [{ name: "Action", value: "Register" }],
+            tags: [{ name: "Action", value: "Register" }, { name: "Name", value: name }],
             data: "",
             signer: createDataItemSigner(window.arweaveWallet),
         });
@@ -83,7 +84,17 @@ const Create = () => {
                 {isFetching && <div className="text-black">Fetching posts...</div>}
                 <hr className="border-t w-full my-4" />
                 {!isRegistered && (
-                    <button className="px-6 py-3 bg-black text-white rounded-full text-lg mb-4" onClick={registerAuthor}>Register</button>
+                    <div className="flex flex-col items-center w-full">
+                        <input
+                            type="text"
+                            placeholder="Enter your name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                            className="mb-4 w-full border-2 border-gray-300 rounded p-2"
+                        />
+                        <button className="px-6 py-3 bg-black text-white rounded-full text-lg mb-4" onClick={registerAuthor}>Register</button>
+                    </div>
                 )}
                 {isRegistered && <Editor />}
             </main>
