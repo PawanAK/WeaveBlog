@@ -34,7 +34,6 @@ const Create = () => {
             console.log("Filtered Author result", filteredResult);
             if (filteredResult[0]) {
                 setAuthorList(filteredResult[0]);
-                setIsRegistered(filteredResult[0].some((author) => author.PID === activeAddress));
             }
         } catch (error) {
             console.log(error);
@@ -67,20 +66,20 @@ const Create = () => {
     useEffect(() => {
         setIsFetching(true);
         syncAllAuthors();
-        console.log("This is active address", activeAddress);
-        console.log(
-            "Includes author",
-            authorList.some((author) => author.PID == activeAddress)
-        );
-
         setIsFetching(false);
-    }, [connected, isRegistered]); // Add isRegistered to the dependency array
+    }, [connected]);
+
+    useEffect(() => {
+        if (authorList.some((author) => author.PID === activeAddress)) {
+            setIsRegistered(true);
+        }
+    }, [authorList, activeAddress]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 pt-16">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-white pt-16">
             <Header />
-            <main className="flex flex-col items-center justify-center w-full max-w-2xl p-4">
-                <h2 className="text-4xl font-bold mb-8 text-black">Welcome to Creator</h2>
+            <main className="flex flex-col items-center justify-center w-full max-w-4xl p-4">
+                <h2 className="text-4xl font-bold mb-8 text-black">Create a Post</h2>
                 {isFetching && <div className="text-black">Fetching posts...</div>}
                 <hr className="border-t w-full my-4" />
                 {!isRegistered && (
@@ -93,7 +92,7 @@ const Create = () => {
                             required
                             className="mb-4 w-full border-2 border-gray-300 rounded p-2"
                         />
-                        <button className="px-6 py-3 bg-black text-white rounded-full text-lg mb-4" onClick={registerAuthor}>Register</button>
+                        <button className="px-6 py-3 bg-blue-500 text-white rounded-full text-lg mb-4" onClick={registerAuthor}>Register</button>
                     </div>
                 )}
                 {isRegistered && <Editor />}

@@ -6,6 +6,7 @@ import { dryrun, message, result } from "@permaweb/aoconnect";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.bubble.css";
 import { createDataItemSigner } from "@permaweb/aoconnect";
+import { FaHeart } from 'react-icons/fa'; // Import heart icon
 
 const ViewPost = () => {
   const { postId } = useParams();
@@ -70,37 +71,29 @@ const ViewPost = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 pt-16">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white pt-16">
       <Header />
-      <main className="flex flex-col items-center justify-center w-full max-w-2xl p-4">
+      <main className="flex flex-col items-center justify-center w-full max-w-4xl p-4">
         {postContent && (
-          <div className="w-full">
-            <h2 className="text-4xl font-bold mb-4 text-black">
-              {postContent.Title}
-            </h2>
+          <div className="w-full bg-gray-100 p-6 rounded-lg shadow-md">
+            <h2 className="text-4xl font-bold mb-4 text-black">{postContent.Title}</h2>
             <p className="text-gray-700 mb-2">Author: {postContent.Author}</p>
             <p className="text-gray-700 mb-4">ID: {postContent.ID}</p>
             <Link to="/view" className="text-white no-underline">
-              <button className="px-6 py-3 bg-black text-white rounded-full text-lg mb-4">
-                Back
-              </button>
+              <button className="px-6 py-3 bg-blue-500 text-white rounded-full text-lg mb-4">Back</button>
             </Link>
             <hr className="border-t w-full my-4" />
-            <ReactQuill
-              value={postContent.Body}
-              readOnly
-              theme="bubble"
-              className="w-full"
-            />
-            <button className="btn btn-primary mt-4" onClick={likePost}>Like</button>
-            <p className="text-gray-700 mt-2">Likes: {postContent.Likes}</p>
+            <ReactQuill value={postContent.Body} readOnly theme="bubble" className="w-full mb-4" style={{ minHeight: '300px' }} />
+            <button className="flex items-center btn btn-primary mt-4 bg-blue-500 text-white rounded-full px-6 py-3" onClick={likePost}>
+              <FaHeart className="mr-2" /> {postContent.Likes}
+            </button>
             <textarea
-              className="textarea textarea-bordered mt-4"
+              className="textarea textarea-bordered mt-4 w-full border-2 border-gray-300 rounded p-2"
               placeholder="Add a comment"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             ></textarea>
-            <button className="btn btn-primary mt-2" onClick={commentOnPost}>Comment</button>
+            <button className="btn btn-primary mt-2 bg-blue-500 text-white rounded-full px-6 py-3" onClick={commentOnPost}>Comment</button>
             <div className="mt-4">
               <h3 className="text-2xl font-bold mb-2">Comments</h3>
               {postContent.Comments && postContent.Comments.map((comment, index) => (

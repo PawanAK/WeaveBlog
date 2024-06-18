@@ -53,7 +53,7 @@ const Editor = () => {
   };
 
   return (
-    <form className="flex flex-col items-center w-full">
+    <form className="flex flex-col items-center w-full bg-gray-100 p-6 rounded-lg shadow-md">
       <input
         type="text"
         placeholder="Title"
@@ -70,10 +70,11 @@ const Editor = () => {
       />
       {isPosting && <div className="text-black">Posting...</div>}
       <button
-        className="px-6 py-3 bg-black text-white rounded-full text-lg"
+        className="px-6 py-3 bg-blue-500 text-white rounded-full text-lg"
         type="submit"
         disabled={isPosting || (title === "" && draftContent === "")}
-        onClick={(e) => createPost(e)}>
+        onClick={(e) => createPost(e)}
+      >
         Create Post
       </button>
     </form>
